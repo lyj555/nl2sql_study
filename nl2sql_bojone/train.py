@@ -101,7 +101,7 @@ class data_generator:
 
     def __iter__(self):
         while True:
-            idxs = range(len(self.data))
+            idxs = list(range(len(self.data)))
             np.random.shuffle(idxs)
             X1, X2, XM, H, HM, SEL, CONN, CSEL, COP = [], [], [], [], [], [], [], [], []
             for i in idxs:
@@ -286,8 +286,8 @@ def construct_train_model():
     hm_in = Input(shape=(None,))  # [None, col_len], 存在列的value是1，其余为0
 
     sel_in = Input(shape=(None,), dtype='int32')  # [None, col_len]，6表示无选择，其余对应index
-    conn_in = Input(shape=(1,), dtype='int32')  # [None, 1] 条件的连接符号
-    csel_in = Input(shape=(None,), dtype='int32')  # [None, seq_len] 基于原始question将列的index标注上
+    conn_in = Input(shape=(1,), dtype='int32')    # [None, 1] 条件的连接符号
+    csel_in = Input(shape=(None,), dtype='int32') # [None, seq_len] 基于原始question将列的index标注上
     cop_in = Input(shape=(None,), dtype='int32')  # [None, seq_len] 基于原始question将列的index的op符号index标注上
 
     x1, x2, xm, h, hm, sel, conn, csel, cop = (
@@ -310,7 +310,7 @@ def construct_train_model():
 
     # 第四个子任务，每个每个位置的列（col_index op col_value）,每个位置是col_len的多分类
     # 将quesition部分和列的特征进行融合
-    x = Lambda(lambda x: K.expand_dims(x, 2))(x)  # [None, seq_len, 1, 768]
+    x = Lambda(lambda x: K.expand_dims(x, 2))(x)      # [None, seq_len, 1, 768]
     x4h = Lambda(lambda x: K.expand_dims(x, 1))(x4h)  # [None, 1, col_len, 768] 列的表示
     pcsel_1 = Dense(256)(x)  # [None, seq_len, 1, 256]
     pcsel_2 = Dense(256)(x4h)  # [None, 1, col_len, 256]
